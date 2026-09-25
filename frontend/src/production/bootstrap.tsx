@@ -24,6 +24,18 @@ export function acquireProductionRendererRuntime(windowValue: unknown): Producti
   return { bridge: candidate.desktop, coordinatorPort: candidate.coordinatorPort as CoordinatorPortBridge };
 }
 
+export function hasProductionRendererRuntime(windowValue: unknown): windowValue is Window & {
+  desktop: ProductionRendererRuntime["bridge"];
+  coordinatorPort: ProductionRendererRuntime["coordinatorPort"];
+} {
+  if (typeof windowValue !== "object" || windowValue == null) return false;
+  const candidate = windowValue as { desktop?: unknown; coordinatorPort?: unknown };
+  return hasDesktopBridge(candidate.desktop)
+    && typeof candidate.coordinatorPort === "object"
+    && candidate.coordinatorPort != null
+    && typeof (candidate.coordinatorPort as { claim?: unknown }).claim === "function";
+}
+
 export function requireProductionRendererMount(mount: HTMLElement | null): HTMLElement {
   invariant(mount != null);
   return mount;
